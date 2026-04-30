@@ -16,6 +16,7 @@ import cookieParser from 'cookie-parser';
 import auth from './middleware/auth.js';
 import Goal from './models/Goal.js'; //
 import { canDownloadReports } from './middleware/checkPlanLimits.js';
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 
 // Importación de modelos externos
 import Notification from './models/Notification.js';
@@ -110,7 +111,7 @@ const io = new Server(server, {
   }
 });
 
-global.io = io; 
+const io = req.app.get('socketio');
 
 io.on('connection', (socket) => {
   socket.on('join', (userId) => {
@@ -158,7 +159,7 @@ app.post('/api/notifications/subscribe', protectRoute, async (req, res) => {
 // ==========================================
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 300,
   message: { error: 'Demasiadas peticiones desde esta IP, intenta más tarde.' }
 });
 app.use('/api/', generalLimiter);
@@ -192,8 +193,8 @@ app.post('/api/auth/register', async (req, res) => {
     
     res.cookie('token', token, {
       httpOnly: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -207,7 +208,9 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Email inválido' });
+    }
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: 'Credenciales inválidas' });
 
@@ -337,8 +340,11 @@ app.get('/api/transactions', protectRoute, async (req, res) => {
     // 1. Obtenemos el inicio y fin del día actual (Hoy)
     // Usamos fechas de inicio (00:00:00) y fin (23:59:59)
     const today = new Date();
-    const start = new Date(today.setHours(0, 0, 0, 0));
-    const end = new Date(today.setHours(23, 59, 59, 999));
+    const start = new Date(today);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(today);
+    end.setHours(23, 59, 59, 999);
 
     // 2. Buscamos las transacciones
     const transactions = await Transaction.find({
@@ -360,7 +366,7 @@ app.get('/api/reports/can-export', protectRoute, canDownloadReports, async (req,
   res.json({ canExport: true });
 });
 
-
+app.set('socketio', io);
 app.post('/api/transactions', protectRoute, checkTransactionLimit, async (req, res) => {
   try {
     const typeMap = {
@@ -582,14 +588,19 @@ app.post('/api/goals', protectRoute, checkGoalLimit, async (req, res) => {
 
 app.post('/api/webhook/mercadopago', async (req, res) => {
   try {
-    const { type, data } = req.body;
+      const { type, data } = req.body;
 
-    // Solo procesamos si la notificación es de un pago
-    if (type === 'payment') {
-      const payment = new Payment(client); // 'client' debe estar definido arriba con tu Access Token
+          // Solo procesamos si la notificación es de un pago
+          if (type === 'payment') {
+            const client = new MercadoPagoConfig({
+        accessToken: process.env.MP_ACCESS_TOKEN
+      });
+
+      const payment = new Payment(client);
+
       const paymentData = await payment.get({ id: data.id });
 
-      if (paymentData.status === 'approved') {
+        if (paymentData.status === 'approved') {
         const userId = paymentData.metadata?.user_id;
         const planType = paymentData.metadata?.plan_type; // 'monthly', 'six_months', 'yearly'
 
@@ -874,7 +885,7 @@ app.post('/api/ai/categorizar', protectRoute, async (req, res) => {
     });
 
     const data = await response.json();
-    const categoria = data.choices[0].message.content.trim();
+    const categoria = data?.choices?.[0]?.message?.content?.trim() || 'Otros';
     
     res.json({ categoria });
   } catch (error) {
