@@ -54,7 +54,7 @@ const Dashboard = () => {
       }
 
       try {
-        const res = await fetch("http://localhost:3000/api/user/categories", {
+        const res = await fetch(`${API_URL}/api/user/categories`, {
           credentials: 'include'
         });
         if (res.ok) {
@@ -92,7 +92,7 @@ const Dashboard = () => {
     const timer = setTimeout(async () => {
       setLoadingSugerencia(true);
       try {
-        const res = await fetch("http://localhost:3000/api/ai/categorizar", {
+        const res = await fetch(`${API_URL}/api/ai/categorizar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -121,7 +121,7 @@ const Dashboard = () => {
 
   const fetchTransactions = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/transactions", {
+      const res = await fetch(`${API_URL}/api/transactions`, {
           credentials: 'include'
         });
       if (res.ok) {
@@ -188,8 +188,8 @@ const Dashboard = () => {
 
     try {
       const url = editingId 
-       ? `http://localhost:3000/api/transactions/${editingId}` 
-        : `http://localhost:3000/api/transactions`;
+       ? `${API_URL}/api/transactions/${editingId}` 
+        : `${API_URL}/api/transactions`;
       
       const method = editingId ? 'PUT' : 'POST';
 
@@ -237,7 +237,7 @@ const Dashboard = () => {
   const handleDelete = async (id) => {
     if(!window.confirm("¿Estás seguro de eliminar este registro?")) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/transactions/${id}`, {
+      const res = await fetch(`${API_URL}/api/transactions/${id}`, {
           method: 'DELETE',
           credentials: 'include'
         });

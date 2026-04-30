@@ -19,7 +19,7 @@ const Reports = () => {
 
   const fetchTransactions = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/transactions", { credentials: 'include' });
+      const res = await fetch(`${API_URL}/api/transactions`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setTransactions(data);
@@ -63,7 +63,7 @@ const Reports = () => {
 
   const checkExportPermission = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/reports/can-export", { credentials: 'include' });
+      const res = await fetch(`${API_URL}/api/reports/can-export`, { credentials: 'include' });
       if (res.status === 403) {
         const data = await res.json();
         setLimitInfo(data);

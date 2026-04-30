@@ -61,7 +61,7 @@ export default function AsisteChat() {
     setCargando(true);
 
     try {
-      const res = await fetch("http://localhost:3000/api/ai/asistente", {
+      const res = await fetch(`${API_URL}/api/ai/asistente`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

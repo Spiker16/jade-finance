@@ -29,7 +29,7 @@ const Settings = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/user/categories", { 
+        const res = await fetch(`${API_URL}/api/user/categories`, { 
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include'
         });
@@ -60,7 +60,7 @@ const Settings = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/api/user/categories", {
+      const res = await fetch(`${API_URL}/api/user/categories", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -87,7 +87,7 @@ const Settings = () => {
   const confirmDeleteCategory = async () => {
     if (!catToDelete) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/user/categories/${catToDelete}`, {
+      const res = await fetch(`${API_URL}/api/user/categories/${catToDelete}`, {
         method: "DELETE",
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -113,7 +113,7 @@ const Settings = () => {
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = async () => {
-      const res = await fetch("http://localhost:3000/api/user/update-profile", {
+      const res = await fetch(`${API_URL}/api/user/update-profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -131,7 +131,7 @@ const Settings = () => {
   };
 
   const saveGeneralSettings = async () => {
-    const res = await fetch("http://localhost:3000/api/user/update-settings", {
+    const res = await fetch(`${API_URL}/api/user/update-settings`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -148,7 +148,7 @@ const Settings = () => {
   const updatePassword = async (e) => {
     e.preventDefault();
     if (passwords.new !== passwords.confirm) return showFeedback("Las contraseñas no coinciden", "error");
-    const res = await fetch("http://localhost:3000/api/user/update-password", {
+    const res = await fetch(`${API_URL}/api/user/update-password`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -164,7 +164,7 @@ const Settings = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/user/me", {
+      const res = await fetch(`${API_URL}/api/user/me`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'

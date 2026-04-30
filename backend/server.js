@@ -80,7 +80,7 @@ const server = http.createServer(app);
 // ==========================================
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: 'http://localhost:5173', // Asegúrate que este sea el puerto de tu Vite
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Configurable para producción
   credentials: true,               // Permite el intercambio de cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -104,7 +104,7 @@ webpush.setVapidDetails(
 // ==========================================
 const io = new Server(server, {
   cors: { 
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"], 
+    origin: [process.env.FRONTEND_URL || "http://localhost:5173", "http://127.0.0.1:5173"], 
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }
@@ -260,7 +260,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; 
     await user.save();
 
-    const resetUrl = `http://localhost:5173/reset-password/${token}`;
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${token}`;
     console.log('Step 3: Intentando enviar correo a:', user.email);
 
     const mailOptions = {

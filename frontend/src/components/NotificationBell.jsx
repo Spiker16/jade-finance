@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 import API_URL from '../config.js';
 
-const socket = io("http://localhost:3000", {
+const socket = io(API_URL, {
   autoConnect: false,
   reconnection: true,
   withCredentials: true
@@ -40,7 +40,7 @@ const NotificationBell = ({ userId, darkMode }) => {
         applicationServerKey: urlBase64ToUint8Array('BHJdCOlwJvcHAOiE6yyUvVVMO49VNV_R79X5glefzQkJFcUmlhu-iUHvlV8IkxP-q_opdeOy5fj07koyr4sVifI')
       });
 
-      await fetch("http://localhost:3000/api/notifications/subscribe", {
+      await fetch(`${API_URL}/api/notifications/subscribe`, {
         method: 'POST',
         body: JSON.stringify({ subscription, userId }),
         headers: { 
@@ -58,7 +58,7 @@ const NotificationBell = ({ userId, darkMode }) => {
   const fetchNotifications = useCallback(async () => {
     if (!userId) return;
     try {
-      const res = await fetch("http://localhost:3000/api/notifications", {
+      const res = await fetch(`${API_URL}/api/notifications`, {
        headers: { 
       },
       credentials: 'include'
@@ -125,7 +125,7 @@ const NotificationBell = ({ userId, darkMode }) => {
     if (!id) return; 
     setNotifications(prev => prev.filter(n => n._id !== id));
     try {
-      await fetch(`http://localhost:3000/api/notifications/${id}`, {
+      await fetch(`${API_URL}/api/notifications/${id}`, {
         method: "DELETE",
         headers: {
       },
@@ -139,7 +139,7 @@ const NotificationBell = ({ userId, darkMode }) => {
   const clearAll = async () => {
     setNotifications([]);
     try {
-      await fetch("http://localhost:3000/api/notifications", {
+      await fetch(`${API_URL}/api/notifications`, {
         method: 'DELETE',
        headers: {
       },

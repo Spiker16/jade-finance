@@ -63,7 +63,7 @@ const Upgrade = () => {
     setSelectedPlan(plan);
     
     try {
-      const res = await fetch("http://localhost:3000/api/payments/create-preference", {
+      const res = await fetch(`${API_URL}/api/payments/create-preference`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -90,7 +90,7 @@ const Upgrade = () => {
 
   const onSubmitPayment = async (formData) => {
     try {
-      const res = await fetch("http://localhost:3000/api/payments/process", {
+      const res = await fetch(`${API_URL}/api/payments/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

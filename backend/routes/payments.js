@@ -136,7 +136,8 @@ router.post('/process', auth, async (req, res) => {
 
 router.get('/pse-callback', (req, res) => {
   const params = new URLSearchParams(req.query);
-  res.redirect(`http://localhost:5173/payment-result?${params.toString()}`);
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  res.redirect(`${frontendUrl}/payment-result?${params.toString()}`);
 });
 
 router.post('/webhook', async (req, res) => {

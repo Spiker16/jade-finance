@@ -114,7 +114,7 @@ const Layout = () => {
   useEffect(() => {
     const verificarPlan = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/payments/plan-status", {
+        const res = await fetch(`${API_URL}/api/payments/plan-status`, {
           credentials: 'include'
         });
         if (res.ok) {
@@ -142,7 +142,7 @@ const Layout = () => {
     const container = document.getElementById('layout-container');
     if (container) container.classList.add('opacity-0', 'scale-95', 'blur-sm');
     try {
-      await fetch("http://localhost:3000/api/auth/logout", {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });
