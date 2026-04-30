@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const NAV_LINKS = ["Inicio", "¿Qué es?", "Funciones", "Sobre mí"];
