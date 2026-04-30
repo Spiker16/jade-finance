@@ -111,7 +111,6 @@ const io = new Server(server, {
   }
 });
 
-const io = req.app.get('socketio');
 
 io.on('connection', (socket) => {
   socket.on('join', (userId) => {
