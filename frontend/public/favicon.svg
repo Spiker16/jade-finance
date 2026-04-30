@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Fondo cuadrado redondeado -->
+  <rect width="64" height="64" rx="14" fill="#1a7a5e"/>
+
+  <!-- Letra J -->
+  <rect x="26" y="10" width="7" height="33" rx="3" fill="white"/>
+  <path d="M26 42 Q26 56 18 57 Q12 58 10 53"
+        fill="none" stroke="white" stroke-width="7"
+        stroke-linecap="round"/>
+
+  <!-- Línea de gráfica ascendente -->
+  <polyline points="33,50 41,40 49,45 57,30"
+            fill="none" stroke="#7de8c0"
+            stroke-width="3.5" stroke-linecap="round"
+            stroke-linejoin="round"/>
+  <!-- Puntos de la gráfica -->
+  <circle cx="33" cy="50" r="2.5" fill="#7de8c0"/>
+  <circle cx="41" cy="40" r="2.5" fill="#7de8c0"/>
+  <circle cx="49" cy="45" r="2.5" fill="#7de8c0"/>
+  <circle cx="57" cy="30" r="2.5" fill="#7de8c0"/>
+</svg>

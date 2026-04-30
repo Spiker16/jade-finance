@@ -1,0 +1,39 @@
+# --- DEPENDENCIAS ---
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# --- VARIABLES DE ENTORNO (SEGURIDAD CRÍTICA) ---
+# Ignora cualquier archivo .env en cualquier carpeta
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env
+
+# --- PRODUCCIÓN / BUILDS ---
+frontend/dist/
+frontend/build/
+# Si tu backend genera archivos estáticos o builds
+backend/dist/
+
+# --- LOGS Y DEPURACIÓN ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+logs/
+
+# --- SISTEMA Y EDITORES ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- OTROS ---
+.eslintcache
+coverage/

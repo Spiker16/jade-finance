@@ -1,0 +1,197 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Esto obliga al navegador a ignorar el modo oscuro del sistema */
+    color-scheme: light !important;
+  }
+
+  body {
+    /* Forzamos un fondo blanco y texto oscuro base */
+    @apply bg-white text-slate-900;
+  }
+}
+
+/* Si quieres que el modo oscuro solo funcione cuando TÚ lo decidas 
+   (por ejemplo, añadiendo una clase 'dark' al body) */
+@theme {
+  --variant-dark: .dark &;
+}
+/* frontend/src/index.css */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+/* Efecto de rebote personalizado para iconos */
+.ease-bounce {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* frontend/src/index.css */
+
+/* Efecto de temblor juguetón (genial para advertencias o cerrar sesión) */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+.hover-wiggle:hover {
+  animation: wiggle 0.3s ease-in-out infinite;
+}
+
+/* Efecto de respiración/brillo sutil */
+@keyframes softPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 0 15px 5px rgba(99, 102, 241, 0); }
+}
+.hover-glow:hover {
+  animation: softPulse 1.5s infinite;
+} /* frontend/src/index.css */
+
+/* Animación para cuando aparece un nuevo elemento en la lista */
+@keyframes slideInLeft {
+  0% { opacity: 0; transform: translateX(-30px) scale(0.95); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+.animate-slide-in {
+  animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Animación de "salto" (Pop) para cuando el saldo cambia */
+@keyframes popIn {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); color: #10B981; } /* Se pinta de verde esmeralda en el salto */
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: popIn 0.5s ease-out;
+}
+/* frontend/src/index.css */
+
+@layer utilities {
+  /* Brillo que recorre el botón al pasar el mouse */
+  .hover-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .hover-shimmer::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    transition: 0.8s;
+    opacity: 0;
+  }
+  .hover-shimmer:hover::after {
+    left: 120%;
+    opacity: 1;
+  }
+
+  /* Animación de flotación infinita para el logo */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Pulso sutil para el perfil */
+  @keyframes pulse-soft {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 15px 5px rgba(99, 102, 241, 0); }
+  }
+  .animate-pulse-soft {
+    animation: pulse-soft 2s infinite;
+  }
+}
+.header-historial {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.date-filter-input {
+  padding: 5px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-family: inherit;
+}
+
+.day-title {
+  font-size: 0.85rem;
+  color: #888;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-top: 15px;
+  text-transform: uppercase;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.ease-bounce {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-shimmer:hover {
+  background-image: linear-gradient(
+    45deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 75%
+  );
+  background-size: 200% 200%;
+  animation: shimmer 2s infinite linear;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #4f46e5; /* Color índigo */
+  border-radius: 10px;
+}
