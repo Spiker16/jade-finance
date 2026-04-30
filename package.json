@@ -1,4 +1,11 @@
 {
+  "name": "jade-finance-api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
@@ -6,13 +13,11 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.2",
-    "framer-motion": "^12.38.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mercadopago": "^2.12.0",
     "mongodb": "^7.1.1",
     "mongoose": "^9.5.0",
-    "ngrok": "^5.0.0-beta.2",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.5",
     "socket.io": "^4.8.3",
