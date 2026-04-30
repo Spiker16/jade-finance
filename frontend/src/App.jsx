@@ -14,6 +14,7 @@ import ResetPassword from './pages/ResetPassword';
 import Settings from './pages/Settings';  
 import Upgrade from './pages/Upgrade';
 import PaymentResult from './pages/PaymentResult';
+import LandingPage from './pages/LandingPage';
 
 // ==========================================
 // 1. COMPONENTE GUARDIA (ProtectedRoute)
@@ -36,6 +37,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Rutas Públicas */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
