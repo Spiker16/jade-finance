@@ -89,7 +89,7 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
-app.options('*', cors());
+app.options('/(.*)', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
