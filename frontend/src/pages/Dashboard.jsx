@@ -263,9 +263,9 @@ const Dashboard = () => {
     }
   };
 
-  const totalBalance = transactions.reduce((acc, curr) => {
-    const monto = Number(curr.amount);
-    return curr.type === 'income' ? acc + monto : acc - monto;
+  const totalBalance = allTransactions.reduce((acc, curr) => {
+  const monto = Number(String(curr.amount).replace(/\./g, ''));
+  return curr.type === 'income' ? acc + monto : acc - monto;
   }, 0);
 
   // ==========================================
