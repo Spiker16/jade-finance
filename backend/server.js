@@ -227,9 +227,9 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.post('/api/auth/forgot-password', async (req, res) => {
-  console.log('--- INICIANDO PROCESO DE RECUPERACIÓN ---');
   try {
     const { email } = req.body;
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: 'Correo no registrado' });
@@ -237,56 +237,46 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
     const token = crypto.randomBytes(20).toString('hex');
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; 
+    user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${token}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
-    const mailOptions = {
-      from: `"Jade Finance Support" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: '🔐 Recupera tu acceso a Jade Finance',
-      html: `
-      <div style="background-color: #0f172a; padding: 40px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #ffffff; text-align: center;">
-      <div style="max-width: 500px; margin: 0 auto; background-color: #1e293b; border-radius: 20px; padding: 40px; border: 1px solid #10b98133;">
+    const html = `
+    <div style="background-color: #0f172a; padding: 40px; font-family: Arial; color: #fff; text-align: center;">
+      <div style="max-width: 500px; margin: auto; background: #1e293b; padding: 30px; border-radius: 20px;">
         
-        <h1 style="color: #10b981; margin-bottom: 20px; font-size: 28px;">
-          Jade Finance
-        </h1>
+        <h1 style="color: #10b981;">Jade Finance</h1>
 
-        <div style="background-color: #10b9811a; border-radius: 50%; width: 60px; height: 60px; line-height: 60px; margin: 0 auto 20px; font-size: 30px;">
-          🔑
-        </div>
+        <h2>🔐 Recuperar contraseña</h2>
 
-        <h2 style="color: #ffffff; margin-bottom: 10px;">
-          ¿Olvidaste tu contraseña?
-        </h2>
-
-        <p style="color: #94a3b8; line-height: 1.6; margin-bottom: 30px;">
-          No te preocupes, nos pasa a todos. Haz clic en el botón de abajo para elegir una nueva clave y seguir controlando tus finanzas.
+        <p style="color:#94a3b8;">
+          Haz clic en el botón para restablecer tu contraseña.
         </p>
 
         <a href="${resetUrl}" 
-          style="background-color: #10b981; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
-          Restablecer Contraseña
+          style="display:inline-block; margin-top:20px; padding:15px 25px; background:#10b981; color:white; border-radius:10px; text-decoration:none;">
+          Restablecer contraseña
         </a>
 
-        <p style="color: #64748b; font-size: 12px; margin-top: 40px; border-top: 1px solid #334155; padding-top: 20px;">
-          Este enlace expirará en 1 hora por seguridad.<br>
-          Si no solicitaste este cambio, puedes ignorar este correo.
+        <p style="font-size:12px; margin-top:30px; color:#64748b;">
+          Este enlace expira en 1 hora.
         </p>
 
       </div>
     </div>
-  `
-    };
+    `;
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Step 4: ¡Correo enviado con éxito! ID:', info.messageId);
+    await resend.emails.send({
+      from: 'Jade Finance <onboarding@resend.dev>', // ⚠️ IMPORTANTE
+      to: user.email,
+      subject: 'Recupera tu acceso',
+      html
+    });
 
-    res.json({ message: 'Enlace enviado a tu correo electrónico' });
+    res.json({ message: 'Correo enviado correctamente' });
+
   } catch (error) {
-    console.log('❌ ERROR CRÍTICO EN LA RUTA:');
     console.error(error);
     res.status(500).json({ error: 'Error al procesar solicitud' });
   }
