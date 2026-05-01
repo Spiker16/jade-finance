@@ -964,7 +964,7 @@ import router from './routes/transactions.js';
 
 app.use('/api/budgets', budgetsRouter);
 app.use('/api/payments', paymentsRouter);
-app.use('/api', router);
+app.use('/api/transactions', router);
 app.use('/api/debts', debtsRouter);
 
 app.use((err, req, res, next) => {
