@@ -20,7 +20,7 @@ export default function LandingPage() {
 
   // PWA Install
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallBtn, setShowInstallBtn] = useState(false);
+  const [showInstallBtn, setShowInstallBtn] = useState(true);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
