@@ -36,8 +36,10 @@ const PWARedirect = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const isPWA = window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone === true;
+    const isPWA = 
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true ||
+      new URLSearchParams(window.location.search).get('pwa') === 'true';
 
     if (isPWA && location.pathname === '/') {
       navigate('/login', { replace: true });
