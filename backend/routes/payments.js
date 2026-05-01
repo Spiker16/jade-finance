@@ -78,7 +78,7 @@ router.post('/process', auth, async (req, res) => {
       ...req.body.formData, 
       description: 'Jade Finance Premium',
       statement_descriptor: 'JADE FINANCE',
-      callback_url: ' https://goon-savior-designate.ngrok-free.dev/api/payments/pse-callback',
+      callback_url: `${process.env.BACKEND_URL || 'https://jade-finance-api.onrender.com'}/api/payments/pse-callback`,
       metadata: {
         user_id: req.user.id 
       }
