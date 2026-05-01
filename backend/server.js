@@ -11,19 +11,18 @@ import { Server } from 'socket.io';
 import cron from 'node-cron';
 import webpush from 'web-push';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import cookieParser from 'cookie-parser';
 import auth from './middleware/auth.js';
 import Goal from './models/Goal.js';
 import { canDownloadReports } from './middleware/checkPlanLimits.js';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
-
 import Notification from './models/Notification.js';
 import Subscription from './models/Subscription.js';
 import Debt from './models/Debt.js';
 import Budget from './models/Budget.js';
 import User from './models/User.js';
 import Transaction from './models/Transaction.js';
+import { Resend } from 'resend';
 
 const protectRoute = async(req, res, next) => {
   const token = req.cookies.token;
@@ -49,24 +48,7 @@ import {
   checkDebtLimit 
 } from './middleware/checkPlanLimits.js';
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // TLS
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("❌ ERROR DE CONFIGURACIÓN DE CORREO:");
-    console.error(error);
-  } else {
-    console.log("📧 SERVIDOR LISTO: Gmail aceptó tus credenciales");
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ==========================================
 // 1. INICIALIZACIÓN
@@ -74,14 +56,11 @@ transporter.verify((error, success) => {
 const app = express();
 const server = http.createServer(app);
 
-// ✅ FIX 1: Trust Proxy — necesario en Render/Vercel para que
-// express-rate-limit pueda leer la IP real del cliente
 app.set('trust proxy', 1);
 
 // ==========================================
-// 2. MIDDLEWARES DE SEGURIDAD Y CORS
+// 2. MIDDLEWARES
 // ==========================================
-
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
@@ -91,15 +70,11 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
-
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 
-
-// ✅ FIX 4: Rate limiter movido aquí arriba, ANTES de cualquier ruta,
-// para que proteja TODAS las rutas /api/ incluyendo /api/notifications
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
@@ -108,7 +83,7 @@ const generalLimiter = rateLimit({
 app.use('/api/', generalLimiter);
 
 // ==========================================
-// CONFIGURACIÓN DE WEB PUSH
+// WEB PUSH
 // ==========================================
 webpush.setVapidDetails(
   'mailto:tu-email@ejemplo.com',
@@ -117,7 +92,7 @@ webpush.setVapidDetails(
 );
 
 // ==========================================
-// CONFIGURACIÓN DE SOCKET.IO
+// SOCKET.IO
 // ==========================================
 const io = new Server(server, {
   cors: { 
@@ -127,7 +102,6 @@ const io = new Server(server, {
   }
 });
 
-// ✅ FIX 2: Asignar io al objeto global para poder usarlo en rutas y cron jobs
 global.io = io;
 
 io.on('connection', (socket) => {
@@ -142,12 +116,51 @@ io.on('connection', (socket) => {
 });
 
 // ==========================================
-// CONEXIÓN A MONGO
+// MONGO
 // ==========================================
 mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI, { family: 4 })
   .then(() => console.log('✅ Conectado a MongoDB Atlas'))
   .catch((err) => console.error('❌ Error de conexión:', err));
 
+// ==========================================
+// AUTH
+// ==========================================
+app.post('/api/auth/forgot-password', async (req, res) => {
+  console.log('--- INICIANDO PROCESO DE RECUPERACIÓN ---');
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'Correo no registrado' });
+    }
+
+    const token = crypto.randomBytes(20).toString('hex');
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; 
+    await user.save();
+
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${token}`;
+
+    const html = `
+      <div style="background-color: #0f172a; padding: 40px; color: #fff;">
+        <h2>Recupera tu contraseña</h2>
+        <a href="${resetUrl}">Restablecer</a>
+      </div>
+    `;
+
+    await resend.emails.send({
+      from: 'Jade Finance <onboarding@resend.dev>',
+      to: user.email,
+      subject: '🔐 Recupera tu acceso a Jade Finance',
+      html
+    });
+
+    res.json({ message: 'Enlace enviado a tu correo electrónico' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al procesar solicitud' });
+  }
+});
 // ==========================================
 // RUTAS DE NOTIFICACIONES
 // ==========================================
