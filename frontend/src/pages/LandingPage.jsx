@@ -1,18 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-useEffect(() => {
-  const isPWA = 
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true ||
-    new URLSearchParams(window.location.search).get('pwa') === 'true';
-  
-    if (isPWA) {
-        navigate('/login');
-    }
-    }, []);
 
-    
+
+
 const NAV_LINKS = ["Inicio", "¿Qué es?", "Funciones", "Sobre mí"];
 
 const FEATURES = [
@@ -36,7 +27,16 @@ export default function LandingPage() {
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
-
+    useEffect(() => {
+    const isPWA = 
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true ||
+        new URLSearchParams(window.location.search).get('pwa') === 'true';
+    
+        if (isPWA) {
+            navigate('/login');
+        }
+        }, []);
   
   useEffect(() => {
     const isIOSDevice = /iphone|ipad|ipod/i.test(navigator.userAgent);
