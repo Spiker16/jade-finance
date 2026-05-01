@@ -18,6 +18,38 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // PWA Install
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallBtn, setShowInstallBtn] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+
+  useEffect(() => {
+    const isIOSDevice = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    setIsIOS(isIOSDevice);
+    if (isIOSDevice) setShowInstallBtn(true);
+
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBtn(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (isIOS) {
+      setShowIOSInstructions(true);
+      return;
+    }
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setShowInstallBtn(false);
+    setDeferredPrompt(null);
+  };
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
@@ -56,6 +88,15 @@ export default function LandingPage() {
           white-space: nowrap;
         }
         .btn-ghost:hover { border-color: #10b981; color: #10b981; }
+
+        .btn-install {
+          background: transparent; color: #10b981;
+          border: 1.5px solid #10b981; border-radius: 14px;
+          padding: 13px 24px; font-size: 15px; font-weight: 600;
+          cursor: pointer; transition: all .25s; font-family: inherit;
+          white-space: nowrap;
+        }
+        .btn-install:hover { background: rgba(16,185,129,0.1); transform: translateY(-2px); }
 
         .feature-card {
           background: linear-gradient(145deg, #0d1b2a, #0f2133);
@@ -207,6 +248,11 @@ export default function LandingPage() {
         </div>
 
         <div className="nav-desktop-btns">
+          {showInstallBtn && (
+            <button className="btn-install" style={{ padding: "10px 18px", fontSize: 14 }} onClick={handleInstall}>
+              📲 Instalar app
+            </button>
+          )}
           <button className="btn-ghost" style={{ padding: "10px 18px", fontSize: 14 }} onClick={() => navigate("/login")}>Iniciar sesión</button>
           <button className="btn-primary" style={{ padding: "10px 18px", fontSize: 14 }} onClick={() => navigate("/register")}>Registrarse</button>
         </div>
@@ -227,6 +273,11 @@ export default function LandingPage() {
           <span key={i} className="nav-link" onClick={() => scrollTo(["hero","que-es","funciones","sobre-mi"][i])}>{l}</span>
         ))}
         <div className="mobile-btns">
+          {showInstallBtn && (
+            <button className="btn-install" onClick={() => { setMenuOpen(false); handleInstall(); }}>
+              📲 Instalar app
+            </button>
+          )}
           <button className="btn-ghost" onClick={() => { setMenuOpen(false); navigate("/login"); }}>Iniciar sesión</button>
           <button className="btn-primary" onClick={() => { setMenuOpen(false); navigate("/register"); }}>Registrarse gratis</button>
         </div>
@@ -261,6 +312,9 @@ export default function LandingPage() {
           <div className="animate-fadeup delay-3 hero-btns" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <button className="btn-primary" onClick={() => navigate("/register")}>Empezar gratis →</button>
             <button className="btn-ghost" onClick={() => navigate("/login")}>Ya tengo cuenta</button>
+            {showInstallBtn && (
+              <button className="btn-install" onClick={handleInstall}>📲 Instalar app</button>
+            )}
           </div>
 
           <div className="animate-float animate-fadeup delay-4 dashboard-card">
@@ -358,6 +412,64 @@ export default function LandingPage() {
         <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, color: "#10b981", fontSize: 15, marginBottom: 6 }}>Jade Finance</div>
         <div>Desarrollado con ❤️ por <span style={{ color: "#10b981" }}>Juan David Espinosa Pascuas</span> · Proyecto personal · {new Date().getFullYear()}</div>
       </footer>
+
+      {/* MODAL iOS */}
+      {showIOSInstructions && (
+        <div
+          onClick={() => setShowIOSInstructions(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 200,
+            background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)",
+            display: "flex", alignItems: "flex-end", justifyContent: "center",
+            padding: "0 16px 24px"
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: "#0d1b2a", border: "1px solid #1a2f44",
+              borderRadius: 24, padding: "28px 24px", width: "100%",
+              maxWidth: 400, textAlign: "center"
+            }}
+          >
+            <div style={{ fontSize: 40, marginBottom: 16 }}>📱</div>
+            <h3 style={{ fontFamily: "'Syne', sans-serif", color: "#fff", fontSize: 20, fontWeight: 800, marginBottom: 8 }}>
+              Instalar en iPhone
+            </h3>
+            <p style={{ color: "#64748b", fontSize: 14, lineHeight: 1.7, marginBottom: 20 }}>
+              Safari no permite instalación directa. Sigue estos pasos:
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+              {[
+                { num: "1", text: "Toca el botón compartir", icon: "⬆️" },
+                { num: "2", text: '"Añadir a pantalla de inicio"', icon: "➕" },
+                { num: "3", text: 'Toca "Añadir" — ¡listo!', icon: "✅" },
+              ].map(step => (
+                <div key={step.num} style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  background: "rgba(16,185,129,0.07)", borderRadius: 14,
+                  padding: "12px 16px", textAlign: "left"
+                }}>
+                  <div style={{
+                    width: 32, height: 32, borderRadius: "50%",
+                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 14, color: "#fff", fontWeight: 800, flexShrink: 0
+                  }}>{step.num}</div>
+                  <span style={{ color: "#e2e8f0", fontSize: 14 }}>{step.icon} {step.text}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              className="btn-primary"
+              onClick={() => setShowIOSInstructions(false)}
+              style={{ width: "100%" }}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
