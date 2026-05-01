@@ -149,7 +149,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     `;
 
     await resend.emails.send({
-      from: 'Jade Finance <onboarding@resend.dev>',
+      from: 'Jade Finance <sopo@jadefinance.online>',
       to: user.email,
       subject: '🔐 Recupera tu acceso a Jade Finance',
       html
