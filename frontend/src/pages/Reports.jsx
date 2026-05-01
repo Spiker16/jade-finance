@@ -42,13 +42,11 @@ const Reports = () => {
   const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   const filteredTransactions = useMemo(() => {
-  const filtered = transactions.filter(t => {
-    const date = new Date(t.createdAt);
-    console.log('Fecha tx:', date.getMonth(), date.getFullYear(), 'Filtro:', selectedMonth, selectedYear);
-    return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+  return transactions.filter(t => {
+    const dateStr = t.createdAt.split('T')[0]; // "2026-05-01"
+    const [year, month] = dateStr.split('-').map(Number);
+    return (month - 1) === selectedMonth && year === selectedYear;
   });
-  console.log('Filtradas:', filtered.length);
-  return filtered;
   }, [transactions, selectedMonth, selectedYear]);
 
 
