@@ -10,9 +10,10 @@ const Accounts = () => {
   const darkMode = context?.darkMode ?? false;
   const navigate = useNavigate();
   
-  // URL Base para evitar errores de escritura
-   const DEBTS_URL = `${API_URL}/api/debts`;
+  // ✅ URLs correctas
+  const DEBTS_URL = `${API_URL}/api/debts`;
   const TX_URL = `${API_URL}/api/transactions`;
+  const TX_ALL_URL = `${API_URL}/api/transactions/all`; // ✅ Ruta histórica
 
   const [debts, setDebts] = useState([]);
   const [availableBalance, setAvailableBalance] = useState(0);
@@ -44,9 +45,10 @@ const Accounts = () => {
     fetchTransactions(); 
   }, []);
 
+  // ✅ Bug 1 corregido: usa /api/transactions/all para saldo histórico
   const fetchTransactions = async () => {
     try {
-      const res = await fetch(TX_URL, { credentials: 'include' });
+      const res = await fetch(TX_ALL_URL, { credentials: 'include' });
       if (res.ok) {
         const txs = await res.json();
         const incomes = txs.filter(t => t.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
@@ -94,8 +96,6 @@ const Accounts = () => {
       dueDate: dueDate || null
     };
 
-    console.log("🚀 Enviando POST a:", DEBTS_URL, "con payload:", payload);
-
     try {
       const res = await fetch(DEBTS_URL, {
         method: 'POST',
@@ -117,23 +117,22 @@ const Accounts = () => {
         fetchDebts();
         setName(''); setTotalAmount(''); setDueDate('');
       } else {
-        // Esto aparecerá en tu consola si hay un 404 u otro error
         const errorText = await res.text();
-        console.error(`❌ Error ${res.status} en el servidor. Respuesta:`, errorText);
-        console.warn("REVISA: Que tu backend tenga definido router.post('/') en la ruta de debts.");
+        console.error(`❌ Error ${res.status}:`, errorText);
       }
     } catch (error) { 
       console.error("❌ Error de red:", error); 
     }
   };
 
+  // ✅ Bug 2 corregido: URL completa con /api/debts/
   const handleUpdateDebt = async (e) => {
     e.preventDefault();
     const debtId = debtEditModal.debt?._id || debtEditModal.debt?.id;
-    if(!debtId) return console.error("ID de deuda no encontrado");
+    if (!debtId) return console.error("ID de deuda no encontrado");
 
     try {
-      const res = await fetch(`${API_URL}/${debtId}`, {
+      const res = await fetch(`${DEBTS_URL}/${debtId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -159,7 +158,8 @@ const Accounts = () => {
       message: `¿Estás seguro de que ya pagaste estos ${formatCOP(amount)}?`,
       onConfirm: async () => {
         try {
-          const res = await fetch(`${API_URL}/${debtId}/payments/${paymentId}/complete`, {
+          // ✅ Bug 2 corregido
+          const res = await fetch(`${DEBTS_URL}/${debtId}/payments/${paymentId}/complete`, {
             method: 'PATCH',
             credentials: 'include'
           });
@@ -173,6 +173,7 @@ const Accounts = () => {
     });
   };
 
+  // ✅ Bug 2 corregido
   const handleDeleteDebt = (id) => {
     setConfirmModal({
       isOpen: true,
@@ -180,7 +181,7 @@ const Accounts = () => {
       message: '¿Estás seguro de que deseas eliminar esta deuda y todo su historial?',
       onConfirm: async () => {
         try {
-          const res = await fetch(`${API_URL}/${id}`, {
+          const res = await fetch(`${DEBTS_URL}/${id}`, {
             method: 'DELETE',
             credentials: 'include'
           });
@@ -191,6 +192,7 @@ const Accounts = () => {
     });
   };
 
+  // ✅ Bug 2 corregido
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     const amountNum = Number(paymentAmount.replace(/\D/g, ''));
@@ -203,9 +205,9 @@ const Accounts = () => {
       return;
     }
 
-    let url = `${API_URL}/${paymentModal.debtId}/payments`;
-    if (isEdit) url = `${API_URL}/${paymentModal.debtId}/payments/${paymentModal.editId}`;
-    if (isSchedule) url = `${API_URL}/${paymentModal.debtId}/schedule`;
+    let url = `${DEBTS_URL}/${paymentModal.debtId}/payments`;
+    if (isEdit) url = `${DEBTS_URL}/${paymentModal.debtId}/payments/${paymentModal.editId}`;
+    if (isSchedule) url = `${DEBTS_URL}/${paymentModal.debtId}/schedule`;
 
     try {
       const res = await fetch(url, {
@@ -237,6 +239,7 @@ const Accounts = () => {
     } catch (error) { console.error(error); }
   };
 
+  // ✅ Bug 2 corregido
   const handleDeletePayment = (debtId, paymentId) => {
     setConfirmModal({
       isOpen: true,
@@ -244,8 +247,8 @@ const Accounts = () => {
       message: '¿Estás seguro de eliminar este movimiento?',
       onConfirm: async () => {
         try {
-          const res = await fetch(`${API_URL}/${debtId}/payments/${paymentId}`, {
-          method: 'DELETE',
+          const res = await fetch(`${DEBTS_URL}/${debtId}/payments/${paymentId}`, {
+            method: 'DELETE',
             credentials: 'include'
           });
           if (res.ok) { 
@@ -258,7 +261,6 @@ const Accounts = () => {
     });
   };
 
-  // Agrupación y ordenamiento
   const groupedDebts = debts.reduce((groups, debt) => {
     let monthLabel = 'Sin fecha límite';
     if (debt.dueDate) {
@@ -291,7 +293,6 @@ const Accounts = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6 mt-4 px-4 pb-12 relative z-10">
 
-      {/* ✅ BANNER DE LÍMITE */}
       {limitReached && (
         <div className="p-6 rounded-3xl border border-amber-500/30 bg-amber-500/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -390,7 +391,6 @@ const Accounts = () => {
                           </div>
                         </div>
 
-                        {/* Barra de Progreso */}
                         <div className="mb-6">
                           <div className="flex justify-between text-xs font-bold mb-2">
                             <span className={isPaid ? 'text-emerald-500' : 'text-indigo-500'}>
@@ -403,7 +403,6 @@ const Accounts = () => {
                           </div>
                         </div>
 
-                        {/* Historial */}
                         <details className="border-t border-gray-100 dark:border-gray-700 pt-4 group/history cursor-pointer">
                           <summary className={`text-xs font-bold list-none flex justify-between items-center mb-2 ${themeClasses.textMuted}`}>
                             <span>HISTORIAL Y PROGRAMADOS</span>
@@ -482,141 +481,66 @@ const Accounts = () => {
         </div>
       )}
 
-{/* MODAL ABONAR */}
-{paymentModal.show && (
-  <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-    <div className={`w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl relative ${themeClasses.card} animate-in fade-in zoom-in duration-200`}>
-      
-      {/* Botón X para cerrar rápido */}
-      <button 
-        onClick={() => { setPaymentModal({ show: false }); setPaymentError(null); }}
-        className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-500/10 transition-colors"
-      >
-        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      <h3 className={`text-2xl font-black mb-1 ${themeClasses.textTitle}`}>
-        {paymentModal.type === 'edit' ? 'Editar Abono' : 'Nuevo Abono'}
-      </h3>
-      <p className={`text-sm mb-6 ${themeClasses.textMuted}`}>
-        Para: <span className="text-indigo-500 font-bold">{paymentModal.debtName}</span>
-      </p>
-      
-      <form onSubmit={handlePaymentSubmit} className="space-y-5">
-        {paymentModal.type !== 'edit' && (
-          <div className={`flex p-1 rounded-2xl ${darkMode ? 'bg-gray-900' : 'bg-gray-200'}`}>
-            <button 
-              type="button" 
-              onClick={() => { setPaymentModal({...paymentModal, type: 'now'}); setPaymentError(null); }} 
-              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
-                paymentModal.type === 'now' 
-                  ? (darkMode ? 'bg-gray-700 text-indigo-400 shadow-sm' : 'bg-white text-indigo-600 shadow-sm') 
-                  : (darkMode ? 'text-gray-500 hover:text-gray-400' : 'text-gray-500 hover:text-gray-700')
-              }`}
-            >
-              Pagar Ahora
+      {/* MODAL ABONAR */}
+      {paymentModal.show && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className={`w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl relative ${themeClasses.card} animate-in fade-in zoom-in duration-200`}>
+            <button onClick={() => { setPaymentModal({ show: false }); setPaymentError(null); }} className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-500/10 transition-colors">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
-            <button 
-              type="button" 
-              onClick={() => { setPaymentModal({...paymentModal, type: 'schedule'}); setPaymentError(null); }} 
-              className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
-                paymentModal.type === 'schedule' 
-                  ? (darkMode ? 'bg-gray-700 text-indigo-400 shadow-sm' : 'bg-white text-indigo-600 shadow-sm') 
-                  : (darkMode ? 'text-gray-500 hover:text-gray-400' : 'text-gray-500 hover:text-gray-700')
-              }`}
-            >
-              Programar
-            </button>
-          </div>
-        )}
 
-        {/* Error con margen inferior para no pegarse al input */}
-        {paymentError && (
-          <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-center animate-in fade-in zoom-in duration-300 mb-2">
-            <p className="text-xs font-black text-rose-500 uppercase mb-1">❌ Saldo Insuficiente</p>
-            <p className="text-[11px] text-rose-400 font-medium leading-tight">
-              {paymentError}
+            <h3 className={`text-2xl font-black mb-1 ${themeClasses.textTitle}`}>
+              {paymentModal.type === 'edit' ? 'Editar Abono' : 'Nuevo Abono'}
+            </h3>
+            <p className={`text-sm mb-6 ${themeClasses.textMuted}`}>
+              Para: <span className="text-indigo-500 font-bold">{paymentModal.debtName}</span>
             </p>
+            
+            <form onSubmit={handlePaymentSubmit} className="space-y-5">
+              {paymentModal.type !== 'edit' && (
+                <div className={`flex p-1 rounded-2xl ${darkMode ? 'bg-gray-900' : 'bg-gray-200'}`}>
+                  <button type="button" onClick={() => { setPaymentModal({...paymentModal, type: 'now'}); setPaymentError(null); }} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${paymentModal.type === 'now' ? (darkMode ? 'bg-gray-700 text-indigo-400 shadow-sm' : 'bg-white text-indigo-600 shadow-sm') : (darkMode ? 'text-gray-500' : 'text-gray-500')}`}>
+                    Pagar Ahora
+                  </button>
+                  <button type="button" onClick={() => { setPaymentModal({...paymentModal, type: 'schedule'}); setPaymentError(null); }} className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${paymentModal.type === 'schedule' ? (darkMode ? 'bg-gray-700 text-indigo-400 shadow-sm' : 'bg-white text-indigo-600 shadow-sm') : (darkMode ? 'text-gray-500' : 'text-gray-500')}`}>
+                    Programar
+                  </button>
+                </div>
+              )}
+
+              {paymentError && (
+                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-center">
+                  <p className="text-xs font-black text-rose-500 uppercase mb-1">❌ Saldo Insuficiente</p>
+                  <p className="text-[11px] text-rose-400 font-medium leading-tight">{paymentError}</p>
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 ml-1">VALOR</label>
+                <input type="text" value={paymentAmount} onChange={(e) => { handleAmountChange(e, setPaymentAmount); setPaymentError(null); }} required placeholder="0" className={`w-full p-4 border rounded-2xl outline-none text-2xl font-black text-center ${themeClasses.input} ${paymentError ? 'border-rose-500 ring-4 ring-rose-500/10' : ''}`} />
+              </div>
+              
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 ml-1">FECHA</label>
+                <input type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} required style={{ colorScheme: darkMode ? 'dark' : 'light' }} className={`w-full p-4 border rounded-2xl outline-none ${themeClasses.input}`} />
+              </div>
+              
+              <div className="flex gap-4 pt-4">
+                <button type="button" onClick={() => { setPaymentModal({ show: false }); setPaymentError(null); }} className={`flex-1 py-4 rounded-2xl font-bold ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>Cancelar</button>
+                <button type="submit" className="flex-1 py-4 rounded-2xl font-bold text-white shadow-lg bg-emerald-500 hover:bg-emerald-600 active:scale-95">Confirmar</button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
 
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-400 ml-1">VALOR</label>
-          <input 
-            type="text" 
-            value={paymentAmount} 
-            onChange={(e) => { 
-              handleAmountChange(e, setPaymentAmount); 
-              setPaymentError(null); 
-            }} 
-            required 
-            placeholder="0" 
-            className={`w-full p-4 border rounded-2xl outline-none text-2xl font-black text-center transition-all ${themeClasses.input} ${
-              paymentError 
-                ? 'border-rose-500 ring-4 ring-rose-500/10 bg-rose-500/5' 
-                : 'focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'
-            }`} 
-          />
-        </div>
-        
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-400 ml-1">FECHA</label>
-          <input 
-            type="date" 
-            value={paymentDate} 
-            onChange={(e) => setPaymentDate(e.target.value)} 
-            required 
-            style={{ colorScheme: darkMode ? 'dark' : 'light' }} 
-            className={`w-full p-4 border rounded-2xl outline-none transition-all ${themeClasses.input} focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10`} 
-          />
-        </div>
-        
-        <div className="flex gap-4 pt-4">
-          <button 
-            type="button" 
-            onClick={() => { setPaymentModal({ show: false }); setPaymentError(null); }} 
-            className={`flex-1 py-4 rounded-2xl font-bold transition-colors ${darkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-          >
-            Cancelar
-          </button>
-          <button 
-            type="submit" 
-            className={`flex-1 py-4 rounded-2xl font-bold text-white shadow-lg transition-transform active:scale-95 ${
-              paymentModal.type === 'schedule' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-emerald-500 hover:bg-emerald-600'
-            }`}
-          >
-            Confirmar
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-      {/* ASISTENTE JADE CON PROP DE LÍMITE */}
-      <AsisteChat onLimitReached={(info) => {
-        setLimitInfo(info);
-        setLimitReached(true);
-      }} />
-      <ConfirmModal
-        isOpen={confirmModal.isOpen}
-        title={confirmModal.title}
-        message={confirmModal.message}
-        onConfirm={confirmModal.onConfirm}
-        onCancel={() => setConfirmModal({ ...confirmModal, isOpen: false })}
-      />
-
-      <PremiumModal
-        isOpen={showPremiumModal}
-        onClose={() => setShowPremiumModal(false)}
-        limitInfo={{ ...limitInfo, isDarkMode: darkMode }}
-      />
+      <AsisteChat onLimitReached={(info) => { setLimitInfo(info); setLimitReached(true); }} />
+      <ConfirmModal isOpen={confirmModal.isOpen} title={confirmModal.title} message={confirmModal.message} onConfirm={confirmModal.onConfirm} onCancel={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
+      <PremiumModal isOpen={showPremiumModal} onClose={() => setShowPremiumModal(false)} limitInfo={{ ...limitInfo, isDarkMode: darkMode }} />
     </div>
   );
 };
 
 export default Accounts;
-
-
-

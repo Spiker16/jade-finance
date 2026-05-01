@@ -321,6 +321,17 @@ app.post('/api/auth/reset-password/:token', async (req, res) => {
 // ==========================================
 // 6. RUTAS DE TRANSACCIONES
 // ==========================================
+
+// ✅ NUEVA RUTA - va ANTES de /api/transactions
+app.get('/api/transactions/all', protectRoute, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ userId: req.user.id })
+      .sort({ createdAt: -1 });
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener transacciones' });
+  }
+});
 app.get('/api/transactions', protectRoute, async (req, res) => {
   try {
     const today = new Date();
