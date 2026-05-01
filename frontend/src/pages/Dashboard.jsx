@@ -13,6 +13,7 @@ const Dashboard = () => {
   const isPremiumUser = user.plan === 'premium';
 
   const [transactions, setTransactions] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]); 
   const [amount, setAmount] = useState('');
   const [type, setType] = useState('expense');
   const [category, setCategory] = useState('🍔 Comida');
@@ -71,6 +72,7 @@ const Dashboard = () => {
     };
 
     fetchTransactions();
+    fetchAllTransactions();
     syncData();
 
     const handleStorageChange = () => {
@@ -130,6 +132,18 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error("Error al cargar datos", error);
+    }
+  };
+
+    const fetchAllTransactions = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/transactions/all`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setAllTransactions(data);
+      }
+    } catch (error) {
+      console.error("Error al cargar saldo histórico", error);
     }
   };
 
