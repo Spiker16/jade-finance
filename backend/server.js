@@ -123,45 +123,6 @@ mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI, { family: 4 }
   .catch((err) => console.error('❌ Error de conexión:', err));
 
 // ==========================================
-// AUTH
-// ==========================================
-app.post('/api/auth/forgot-password', async (req, res) => {
-  console.log('--- INICIANDO PROCESO DE RECUPERACIÓN ---');
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ error: 'Correo no registrado' });
-    }
-
-    const token = crypto.randomBytes(20).toString('hex');
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; 
-    await user.save();
-
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${token}`;
-
-    const html = `
-      <div style="background-color: #0f172a; padding: 40px; color: #fff;">
-        <h2>Recupera tu contraseña</h2>
-        <a href="${resetUrl}">Restablecer</a>
-      </div>
-    `;
-
-    await resend.emails.send({
-      from: 'Jade Finance <soporte@jadefinance.online>',
-      to: user.email,
-      subject: '🔐 Recupera tu acceso a Jade Finance',
-      html
-    });
-
-    res.json({ message: 'Enlace enviado a tu correo electrónico' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al procesar solicitud' });
-  }
-});
-// ==========================================
 // RUTAS DE NOTIFICACIONES
 // ==========================================
 app.get('/api/notifications', protectRoute, async (req, res) => {
