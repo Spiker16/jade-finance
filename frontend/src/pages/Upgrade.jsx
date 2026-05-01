@@ -203,7 +203,14 @@ const Upgrade = () => {
               initialization={{ amount: selectedPlan?.price, preferenceId: preferenceId }}
               customization={{
                 visual: { theme: 'dark', customVariables: { baseColor: '#10b981' } },
-                paymentMethods: { ticket: "all", bankTransfer: "none", creditCard: "all", debitCard: "all", mercadoPago: "all" }
+                paymentMethods: { 
+                  ticket: "none",
+                  bankTransfer: "none",
+                  creditCard: "all", 
+                  debitCard: "all", 
+                  mercadoPago: "all",
+                  atm: "none"
+                }
               }}
               onSubmit={onSubmitPayment}
               onError={() => { setShowBrick(false); setError('Error al cargar Mercado Pago'); }}
