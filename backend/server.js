@@ -288,19 +288,33 @@ app.post('/api/auth/forgot-password', async (req, res) => {
       html: `
       <div style="background-color: #0f172a; padding: 40px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #ffffff; text-align: center;">
       <div style="max-width: 500px; margin: 0 auto; background-color: #1e293b; border-radius: 20px; padding: 40px; border: 1px solid #10b98133;">
-        <h1 style="color: #10b981; margin-bottom: 20px; font-size: 28px;">Jade Finance</h1>
-        <div style="background-color: #10b9811a; border-radius: 50%; width: 60px; height: 60px; line-height: 60px; margin: 0 auto 20px; font-size: 30px;">🔑</div>
-        <h2 style="color: #ffffff; margin-bottom: 10px;">¿Olvidaste tu contraseña?</h2>
+        
+        <h1 style="color: #10b981; margin-bottom: 20px; font-size: 28px;">
+          Jade Finance
+        </h1>
+
+        <div style="background-color: #10b9811a; border-radius: 50%; width: 60px; height: 60px; line-height: 60px; margin: 0 auto 20px; font-size: 30px;">
+          🔑
+        </div>
+
+        <h2 style="color: #ffffff; margin-bottom: 10px;">
+          ¿Olvidaste tu contraseña?
+        </h2>
+
         <p style="color: #94a3b8; line-height: 1.6; margin-bottom: 30px;">
           No te preocupes, nos pasa a todos. Haz clic en el botón de abajo para elegir una nueva clave y seguir controlando tus finanzas.
         </p>
-        <a href="${resetUrl}" style="background-color: #10b981; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+
+        <a href="${resetUrl}" 
+          style="background-color: #10b981; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
           Restablecer Contraseña
         </a>
+
         <p style="color: #64748b; font-size: 12px; margin-top: 40px; border-top: 1px solid #334155; padding-top: 20px;">
           Este enlace expirará en 1 hora por seguridad.<br>
           Si no solicitaste este cambio, puedes ignorar este correo.
         </p>
+
       </div>
     </div>
   `
