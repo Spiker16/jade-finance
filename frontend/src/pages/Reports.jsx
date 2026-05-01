@@ -49,14 +49,15 @@ const Reports = () => {
   }, [transactions, selectedMonth, selectedYear]);
 
   const { totalIncome, totalExpense } = useMemo(() => {
-    return filteredTransactions.reduce(
-      (acc, curr) => {
-        if (curr.type === 'income') acc.totalIncome += curr.amount;
-        else acc.totalExpense += curr.amount;
-        return acc;
-      },
-      { totalIncome: 0, totalExpense: 0 }
-    );
+  return filteredTransactions.reduce(
+    (acc, curr) => {
+      const monto = Number(String(curr.amount).replace(/\./g, ''));
+      if (curr.type === 'income') acc.totalIncome += monto;
+      else acc.totalExpense += monto;
+      return acc;
+    },
+    { totalIncome: 0, totalExpense: 0 }
+  );
   }, [filteredTransactions]);
 
   const netBalance = totalIncome - totalExpense;
