@@ -79,7 +79,7 @@ app.set('trust proxy', 1);
 // ==========================================
 // 2. MIDDLEWARES DE SEGURIDAD Y CORS
 // ==========================================
-app.use(helmet({ contentSecurityPolicy: false }));
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
@@ -89,9 +89,12 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
+
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
+
 
 // ✅ FIX 4: Rate limiter movido aquí arriba, ANTES de cualquier ruta,
 // para que proteja TODAS las rutas /api/ incluyendo /api/notifications
