@@ -127,6 +127,7 @@ router.post('/process', auth, async (req, res) => {
 
   } catch (error) {
     console.error("❌ Error en /process:", error.message);
+    console.error("❌ Error completo:", JSON.stringify(error?.cause || error, null, 2));
     res.status(400).json({ 
       error: 'Error al procesar el pago',
       details: error.message 
