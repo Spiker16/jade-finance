@@ -46,17 +46,22 @@ const Accounts = () => {
   }, []);
 
   // ✅ Bug 1 corregido: usa /api/transactions/all para saldo histórico
-  const fetchTransactions = async () => {
+    const fetchTransactions = async () => {
     try {
       const res = await fetch(TX_ALL_URL, { credentials: 'include' });
       if (res.ok) {
         const txs = await res.json();
-        const incomes = txs.filter(t => t.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
-        const expenses = txs.filter(t => t.type === 'expense').reduce((acc, curr) => acc + curr.amount, 0);
+        const incomes = txs
+          .filter(t => t.type === 'income')
+          .reduce((acc, curr) => acc + Number(String(curr.amount).replace(/\./g, '')), 0);
+        const expenses = txs
+          .filter(t => t.type === 'expense')
+          .reduce((acc, curr) => acc + Number(String(curr.amount).replace(/\./g, '')), 0);
         setAvailableBalance(incomes - expenses);
       }
     } catch (error) { console.error("❌ Error al cargar saldo:", error); }
   };
+
 
   const fetchDebts = async () => {
     try {
