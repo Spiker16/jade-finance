@@ -181,7 +181,8 @@ const NotificationBell = ({ userId, darkMode }) => {
       {showDropdown && (
         <>
           <div className="fixed inset-0 z-[-1]" onClick={() => setShowDropdown(false)}></div>
-          <div className={`absolute right-0 mt-3 w-80 shadow-2xl rounded-2xl border overflow-hidden animate-in fade-in zoom-in-95 duration-200 ${modalBg}`}>
+          <div className={`absolute right-0 mt-3 w-[calc(100vw-32px)] max-w-sm shadow-2xl rounded-2xl border overflow-hidden animate-in fade-in zoom-in-95 duration-200 ${modalBg}`}
+            style={{ right: 'max(-16px, calc(50% - 50vw + 16px))' }}>
             <div className={`px-5 py-4 border-b flex justify-between items-center ${headerBg}`}>
               <h3 className={`font-bold text-sm ${textColor}`}>Notificaciones</h3>
               <button onClick={clearAll} className="text-[10px] font-bold text-rose-500 hover:underline uppercase">

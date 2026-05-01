@@ -358,7 +358,7 @@ const Dashboard = () => {
       {/* SECCIÓN SALDO */}
       <div className={`p-8 rounded-3xl border shadow-sm text-center overflow-hidden ${themeClasses.card}`}>
         <h2 className={`text-sm font-bold tracking-widest uppercase mb-2 ${themeClasses.textMuted}`}>Saldo Disponible</h2>
-        <p key={totalBalance} className={`text-5xl font-black animate-pop truncate w-full block px-4 ${totalBalance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+       <p key={totalBalance} className={`text-3xl md:text-5xl font-black animate-pop w-full block px-2 text-center ${totalBalance >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
           {formatCOP(totalBalance)}
         </p>
       </div>
