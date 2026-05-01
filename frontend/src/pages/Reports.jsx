@@ -18,15 +18,15 @@ const Reports = () => {
   }, []);
 
   const fetchTransactions = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/transactions`, { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        setTransactions(data);
-      }
-    } catch (error) {
-      console.error("Error al cargar datos", error);
+  try {
+    const res = await fetch(`${API_URL}/api/transactions/all`, { credentials: 'include' });
+    if (res.ok) {
+      const data = await res.json();
+      setTransactions(data);
     }
+  } catch (error) {
+    console.error("Error al cargar datos", error);
+  }
   };
 
   const formatCOP = (num) => {
