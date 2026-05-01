@@ -126,9 +126,11 @@ const Reports = () => {
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
     const days = Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, income: 0, expense: 0 }));
     filteredTransactions.forEach(t => {
-      const day = new Date(t.createdAt).getDate();
-      if (t.type === 'income') days[day - 1].income += t.amount;
-      else days[day - 1].expense += t.amount;
+      const dateStr = t.createdAt.split('T')[0];
+      const day = parseInt(dateStr.split('-')[2]);
+      const monto = Number(String(t.amount).replace(/\./g, ''));
+      if (t.type === 'income') days[day - 1].income += monto;
+      else days[day - 1].expense += monto;
     });
     
     // Protección contra el "Infinito"
