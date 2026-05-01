@@ -31,6 +31,21 @@ const ProtectedRoute = ({ children }) => {
 
   return children;
 };
+const PWARedirect = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+
+    if (isPWA && location.pathname === '/') {
+      navigate('/login', { replace: true });
+    }
+  }, []);
+
+  return null;
+};
 
 function App() {
   return (
