@@ -219,18 +219,26 @@ const Upgrade = () => {
             />
 
             <Payment
-              initialization={{ amount: selectedPlan?.price }}
+              key={preferenceId} 
+              initialization={{ 
+                amount: selectedPlan?.price, // Mantén el monto aquí para evitar el error de validación
+                preferenceId: preferenceId   // Y el ID para la vinculación en producción
+              }}
               customization={{
-                visual: { theme: 'dark', customVariables: { baseColor: '#10b981' } },
+                visual: { 
+                  theme: 'dark', 
+                  customVariables: { baseColor: '#10b981' } 
+                },
                 paymentMethods: {
-                  creditCard: 'all',
-                  debitCard: 'all',
-                  bankTransfer: 'none',
-                  mercadoPago: 'all',
+                  maxInstallments: 1,
                 }
               }}
               onSubmit={onSubmitPayment}
-              onError={() => { setShowBrick(false); setError('Error al cargar Mercado Pago'); }}
+              onError={(err) => { 
+                console.error('Error detallado del Brick:', err);
+                setShowBrick(false); 
+                setError('Hubo un problema al cargar el formulario de pago.'); 
+              }}
             />
 
             {/* Aviso PSE */}
