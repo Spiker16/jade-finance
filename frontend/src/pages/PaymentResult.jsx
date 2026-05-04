@@ -1,15 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
-
-// --- CONFIGURACIÓN INICIAL ---
-
-// Detección automática de la URL del Backend (Vite o CRA)
 import API_URL from '../config.js';
 
-const API_URL = getApiUrl();
-
-// Inicialización con tu Public Key de Mercado Pago
 initMercadoPago('APP_USR-a6e56be2-6815-49e7-9d06-287fc31a4ac0', {
   locale: 'es-CO'
 });
@@ -22,8 +15,7 @@ const Upgrade = () => {
   const [preferenceId, setPreferenceId] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
 
-  // Obtener estado del usuario desde LocalStorage (solo para la UI)
-  const [user, setUser] = useState(() => {
+  const [user] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('user')) || {};
     } catch (e) {
@@ -57,9 +49,7 @@ const Upgrade = () => {
     { text: 'Soporte prioritario', ok: true },
   ];
 
-  // 1. Obtener la preferencia desde el Backend (USANDO COOKIES)
   const handleGetPreference = async (plan) => {
-    console.log("🔵 Iniciando proceso para:", plan.title);
     setError(null);
     setLoading(true);
     setSelectedPlan(plan);
@@ -67,11 +57,8 @@ const Upgrade = () => {
     try {
       const response = await fetch(`${API_URL}/api/payments/create-preference`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-          // Nota: No enviamos Authorization header porque el token va en la Cookie HttpOnly
-        },
-        credentials: 'include', // <--- CRUCIAL: Esto envía la cookie de sesión automáticamente
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ 
           planType: plan.id,
           unitPrice: plan.price 
@@ -81,7 +68,6 @@ const Upgrade = () => {
       const data = await response.json();
       
       if (!response.ok) {
-        // Si el status es 401, es que la cookie no es válida o expiró
         if (response.status === 401) throw new Error("Sesión expirada. Por favor inicia sesión de nuevo.");
         throw new Error(data.error || 'Error al conectar con el servidor');
       }
@@ -94,20 +80,18 @@ const Upgrade = () => {
       }
 
     } catch (err) {
-      console.error("❌ Error:", err.message);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // 2. Procesar el pago final (USANDO COOKIES)
   const onSubmitPayment = async (formData) => {
     try {
       const response = await fetch(`${API_URL}/api/payments/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // <--- CRUCIAL: Envía la cookie para identificar al usuario
+        credentials: 'include',
         body: JSON.stringify({ formData })
       });
       
@@ -122,7 +106,6 @@ const Upgrade = () => {
         navigate(`/payment-result?status=${data.status || 'failure'}`);
       }
     } catch (err) {
-      console.error("❌ Error en el procesamiento:", err);
       navigate('/payment-result?status=failure');
     }
   };
