@@ -225,7 +225,7 @@ const Upgrade = () => {
               initialization={{ amount: selectedPlan?.price, preferenceId: preferenceId }}
               customization={{
                 visual: { theme: 'dark', customVariables: { baseColor: '#10b981', borderRadiusLarge: '24px' } },
-                paymentMethods: { maxInstallments: 1, bankTransfer: 'all', creditCard: 'all', debitCard: 'all' }
+                paymentMethods: { maxInstallments: 1, creditCard: 'all', debitCard: 'all' }
               }}
               onSubmit={onSubmitPayment}
               onReady={() => setLoading(false)}
