@@ -205,7 +205,6 @@ const Upgrade = () => {
 
             <Payment
               initialization={{ 
-                amount: selectedPlan?.price,
                 preferenceId: preferenceId  // 👈 ¡ESTA LÍNEA ES VITAL!
               }}
               customization={{
