@@ -193,21 +193,34 @@
           )}
 
           {/* BRICK DE PAGO */}
-          {showBrick && preferenceId && (
+            {showBrick && preferenceId && (
             <div className="max-w-xl mx-auto p-8 rounded-[3rem] border border-slate-700 bg-slate-900 shadow-2xl">
               <div className="text-center mb-8">
                 <h3 className="text-xl font-black uppercase italic">Suscripción {selectedPlan?.title}</h3>
                 <p className="text-emerald-400 text-2xl font-black mt-1">${selectedPlan?.price.toLocaleString()} COP</p>
               </div>
+
+              {/* ← AGREGA ESTO */}
+              <style>{`
+                [data-testid="bank-transfer-option"],
+                [id*="pse"],
+                [class*="pse"],
+                [data-cy="bank_transfer"],
+                div[aria-label*="PSE"],
+                div[aria-label*="Transferencia"] {
+                  display: none !important;
+                }
+              `}</style>
+
               <Payment
                 initialization={{ amount: selectedPlan?.price }}
                 customization={{
                   visual: { theme: 'dark', customVariables: { baseColor: '#10b981' } },
                   paymentMethods: {
-                    mercadoPago: 'all',
-                    bankTransfer: 'none',
                     creditCard: 'all',
                     debitCard: 'all',
+                    bankTransfer: 'none',
+                    mercadoPago: 'all',
                   }
                 }}
                 onSubmit={onSubmitPayment}
