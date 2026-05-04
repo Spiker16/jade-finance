@@ -204,7 +204,7 @@
                 customization={{
                   visual: { theme: 'dark', customVariables: { baseColor: '#10b981' } },
                   paymentMethods: {
-                     mercadoPago: 'all',
+                    mercadoPago: 'all',
                     bankTransfer: 'none',
                     creditCard: 'all',
                     debitCard: 'all',
