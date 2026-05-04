@@ -47,6 +47,7 @@ const Upgrade = () => {
     { text: 'Reportes avanzados', ok: true },
     { text: 'Metas ilimitadas', ok: true },
     { text: 'Soporte prioritario', ok: true },
+    { text: 'Asistente de IA Financiera', ok: true },
   ];
 
   const handleGetPreference = async (plan) => {
