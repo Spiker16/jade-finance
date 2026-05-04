@@ -199,12 +199,25 @@ const Upgrade = () => {
         )}
 
         {/* BRICK DE PAGO */}
-        {showBrick && preferenceId && (
+              {showBrick && preferenceId && (
           <div className="max-w-xl mx-auto p-8 rounded-[3rem] border border-slate-700 bg-slate-900 shadow-2xl">
-            <div className="text-center mb-8">
-              <h3 className="text-xl font-black uppercase italic">Suscripción {selectedPlan?.title}</h3>
-              <p className="text-emerald-400 text-2xl font-black mt-1">${selectedPlan?.price.toLocaleString()} COP</p>
-            </div>
+            {/* ... resto del código ... */}
+
+            <Payment
+              initialization={{ 
+                amount: selectedPlan?.price,
+                preferenceId: preferenceId  // 👈 ¡ESTA LÍNEA ES VITAL!
+              }}
+              customization={{
+                // ... tu configuración actual ...
+              }}
+              onSubmit={onSubmitPayment}
+              onError={(err) => { 
+                console.error('Error Brick:', err); // Agrega este log para ver detalles
+                setShowBrick(false); 
+                setError('Error al cargar Mercado Pago'); 
+              }}
+            />
 
             <Payment
               initialization={{ amount: selectedPlan?.price }}
