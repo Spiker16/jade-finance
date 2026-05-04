@@ -5,15 +5,7 @@ import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 // --- CONFIGURACIÓN INICIAL ---
 
 // Detección automática de la URL del Backend (Vite o CRA)
-const getApiUrl = () => {
-  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
-  }
-  return 'https://jade-finance-api.onrender.com';
-};
+import API_URL from '../config.js';
 
 const API_URL = getApiUrl();
 
