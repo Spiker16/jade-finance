@@ -199,60 +199,62 @@ const Upgrade = () => {
         )}
 
         {/* BRICK DE PAGO */}
-              {showBrick && preferenceId && (
-          <div className="max-w-xl mx-auto p-8 rounded-[3rem] border border-slate-700 bg-slate-900 shadow-2xl">
-            {/* ... resto del código ... */}
+          {showBrick && preferenceId && (
+            <div className="max-w-xl mx-auto p-8 rounded-[3rem] border border-slate-700 bg-slate-900 shadow-2xl">
+              
+              <div className="mb-6 text-center">
+                <h3 className="text-xl font-black">Finalizar suscripción</h3>
+                <p className="text-slate-400 text-sm">Plan {selectedPlan?.title} — ${selectedPlan?.price.toLocaleString()} COP</p>
+              </div>
 
-            <Payment
-              initialization={{ 
-                preferenceId: preferenceId  // 👈 ¡ESTA LÍNEA ES VITAL!
-              }}
-              customization={{
-                // ... tu configuración actual ...
-              }}
-              onSubmit={onSubmitPayment}
-              onError={(err) => { 
-                console.error('Error Brick:', err); // Agrega este log para ver detalles
-                setShowBrick(false); 
-                setError('Error al cargar Mercado Pago'); 
-              }}
-            />
+              {/* SOLO UN COMPONENTE PAYMENT CON LA KEY Y LOS DATOS CORRECTOS */}
+              <Payment
+                key={preferenceId} // 👈 Vital para reiniciar el brick si hay error
+                initialization={{ 
+                  amount: selectedPlan?.price, // 👈 Requerido por el SDK para validación local
+                  preferenceId: preferenceId   // 👈 Vincula con tu preferencia del backend
+                }}
+                customization={{
+                  visual: { 
+                    theme: 'dark', 
+                    customVariables: { 
+                      baseColor: '#10b981' // El verde Jade
+                    } 
+                  },
+                  paymentMethods: {
+                    maxInstallments: 1, // Recomendado para evitar deudas largas en suscripciones
+                    bankTransfer: 'all', // Habilita PSE
+                    creditCard: 'all',
+                    debitCard: 'all'
+                  }
+                }}
+                onSubmit={onSubmitPayment}
+                onReady={() => setLoading(false)}
+                onError={(err) => { 
+                  console.error('Error detallado del Brick:', err);
+                  setShowBrick(false); 
+                  setError('Hubo un problema al cargar el formulario de pago. Por favor, intenta de nuevo.'); 
+                }}
+              />
 
-            <Payment
-              key={preferenceId} 
-              initialization={{ 
-                amount: selectedPlan?.price, // Mantén el monto aquí para evitar el error de validación
-                preferenceId: preferenceId   // Y el ID para la vinculación en producción
-              }}
-              customization={{
-                visual: { 
-                  theme: 'dark', 
-                  customVariables: { baseColor: '#10b981' } 
-                },
-                paymentMethods: {
-                  maxInstallments: 1,
-                }
-              }}
-              onSubmit={onSubmitPayment}
-              onError={(err) => { 
-                console.error('Error detallado del Brick:', err);
-                setShowBrick(false); 
-                setError('Hubo un problema al cargar el formulario de pago.'); 
-              }}
-            />
+              {/* Aviso de Seguridad */}
+              <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-slate-500 font-bold uppercase">
+                <span className="p-1 bg-emerald-500/10 text-emerald-500 rounded">✓ SSL SECURE</span>
+                <span>•</span>
+                <span>Powered by Mercado Pago</span>
+              </div>
 
-            {/* Aviso PSE */}
-            <div className="mt-3 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <p className="text-xs text-amber-400 font-bold">
-                ⚠️ PSE no disponible temporalmente — usa tarjeta de crédito o débito
-              </p>
+              <button 
+                onClick={() => {
+                  setShowBrick(false);
+                  setPreferenceId(null);
+                }} 
+                className="w-full mt-8 text-slate-500 hover:text-white text-xs font-black uppercase tracking-widest transition-colors"
+              >
+                ← Volver a elegir plan
+              </button>
             </div>
-
-            <button onClick={() => setShowBrick(false)} className="w-full mt-6 text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest">
-              ← Cambiar plan
-            </button>
-          </div>
-        )}
+          )}
 
         {/* FOOTER SEGURIDAD */}
         <div className="flex justify-center gap-8 text-[10px] font-bold text-slate-600 uppercase tracking-widest pt-10">
