@@ -195,23 +195,22 @@ const Reports = () => {
         <div className="h-48 w-full overflow-x-auto custom-scrollbar pb-2">
           <div className="flex items-end justify-between gap-1 h-full min-w-[600px] px-2">
             {dailyData.map((d, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center group relative">
-                
-                {/* Tooltip Hover */}
-                <div className={`absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center z-50 w-max p-2 rounded-xl shadow-2xl text-[10px] font-bold border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'}`}>
-                  <span className="opacity-70">Día {d.day}</span>
-                  {d.income > 0 && <span className="text-emerald-500">+{formatCOP(d.income)}</span>}
-                  {d.expense > 0 && <span className="text-rose-500">-{formatCOP(d.expense)}</span>}
-                  {d.income === 0 && d.expense === 0 && <span className="text-gray-400">Sin movimientos</span>}
-                </div>
-
-                <div className="flex gap-[1px] items-end h-32 w-full justify-center">
-                  <div className="w-1.5 md:w-2 bg-emerald-500 rounded-t-sm transition-all duration-300 hover:brightness-110" style={{ height: `${d.iH}%`, minHeight: d.income > 0 ? '4px' : '0' }}></div>
-                  <div className="w-1.5 md:w-2 bg-rose-500 rounded-t-sm transition-all duration-300 hover:brightness-110" style={{ height: `${d.eH}%`, minHeight: d.expense > 0 ? '4px' : '0' }}></div>
-                </div>
-                <span className={`text-[9px] mt-2 font-bold ${theme.muted}`}>{d.day}</span>
+            <div key={i} className="flex-1 flex flex-col items-center group relative">
+              {/* Tooltip */}
+              <div className={`absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center z-50 w-max p-2 rounded-xl shadow-2xl text-[10px] font-bold border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'}`}>
+                <span className="opacity-70 mb-1">Día {d.day}</span>
+                {d.income > 0 && <span className="text-emerald-500">▲ {formatCOP(d.income)}</span>}
+                {d.expense > 0 && <span className="text-rose-500">▼ {formatCOP(d.expense)}</span>}
+                {d.income === 0 && d.expense === 0 && <span className="text-gray-400">Sin movimientos</span>}
               </div>
-            ))}
+
+              <div className="flex gap-[1px] items-end h-32 w-full justify-center">
+                <div className="w-1.5 md:w-2 bg-emerald-500 rounded-t-sm transition-all duration-300 hover:brightness-110" style={{ height: `${d.iH}%`, minHeight: d.income > 0 ? '4px' : '0' }}></div>
+                <div className="w-1.5 md:w-2 bg-rose-500 rounded-t-sm transition-all duration-300 hover:brightness-110" style={{ height: `${d.eH}%`, minHeight: d.expense > 0 ? '4px' : '0' }}></div>
+              </div>
+              <span className={`text-[9px] mt-2 font-bold ${theme.muted}`}>{d.day}</span>
+            </div>
+          ))}
           </div>
         </div>
 
