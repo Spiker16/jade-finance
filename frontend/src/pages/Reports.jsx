@@ -190,8 +190,8 @@ const Reports = () => {
       <div className={`p-6 rounded-3xl border ${theme.card}`}>
         <h3 className={`text-sm font-bold mb-4 ${theme.text}`}>Flujo de Efectivo Diario</h3>
         
-        <div className="h-48 w-full overflow-x-auto custom-scrollbar pb-2">
-          <div className="flex items-end justify-between gap-1 h-full min-w-[600px] px-2">
+        <div className="h-48 w-full overflow-x-auto overflow-y-visible custom-scrollbar pb-2">
+          <div className="flex items-end justify-between gap-1 h-full min-w-[600px] px-2 overflow-visible">
             {dailyData.map((d, i) => (
               <div key={i} className="flex-1 flex flex-col items-center group relative">
                 {/* ✅ Tooltip posicionado arriba con translate para no depender de la altura de la barra */}
