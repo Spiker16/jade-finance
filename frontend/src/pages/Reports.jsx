@@ -200,8 +200,9 @@ const Reports = () => {
                 {/* Tooltip Hover */}
                 <div className={`absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center z-50 w-max p-2 rounded-xl shadow-2xl text-[10px] font-bold border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'}`}>
                   <span className="opacity-70">Día {d.day}</span>
-                  <span className="text-emerald-500">+{formatCOP(d.income)}</span>
-                  <span className="text-rose-500">-{formatCOP(d.expense)}</span>
+                  {d.income > 0 && <span className="text-emerald-500">+{formatCOP(d.income)}</span>}
+                  {d.expense > 0 && <span className="text-rose-500">-{formatCOP(d.expense)}</span>}
+                  {d.income === 0 && d.expense === 0 && <span className="text-gray-400">Sin movimientos</span>}
                 </div>
 
                 <div className="flex gap-[1px] items-end h-32 w-full justify-center">
