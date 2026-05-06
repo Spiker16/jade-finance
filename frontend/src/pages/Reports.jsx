@@ -4,10 +4,12 @@ import { useOutletContext } from 'react-router-dom';
 import PremiumModal from '../components/PremiumModal';
 import AsisteChat from '../components/AsisteChat';
 import API_URL from '../config.js';
+
 const Reports = () => {
   const { darkMode } = useOutletContext() || { darkMode: true };
   const [transactions, setTransactions] = useState([]);
   const [limitInfo, setLimitInfo] = useState(null);
+  const [limitReached, setLimitReached] = useState(false); // ✅ estado faltante
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -18,19 +20,18 @@ const Reports = () => {
   }, []);
 
   const fetchTransactions = async () => {
-  try {
-    const res = await fetch(`${API_URL}/api/transactions/all`, { credentials: 'include' });
-    if (res.ok) {
-      const data = await res.json();
-      setTransactions(data);
+    try {
+      const res = await fetch(`${API_URL}/api/transactions/all`, { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        setTransactions(data);
+      }
+    } catch (error) {
+      console.error("Error al cargar datos", error);
     }
-  } catch (error) {
-    console.error("Error al cargar datos", error);
-  }
   };
 
   const formatCOP = (num) => {
-    // Protección por si el número es infinito o inválido
     if (!isFinite(num)) return 'Monto excedido';
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -42,24 +43,23 @@ const Reports = () => {
   const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   const filteredTransactions = useMemo(() => {
-  return transactions.filter(t => {
-    const dateStr = t.createdAt.split('T')[0]; // "2026-05-01"
-    const [year, month] = dateStr.split('-').map(Number);
-    return (month - 1) === selectedMonth && year === selectedYear;
-  });
+    return transactions.filter(t => {
+      const dateStr = t.createdAt.split('T')[0];
+      const [year, month] = dateStr.split('-').map(Number);
+      return (month - 1) === selectedMonth && year === selectedYear;
+    });
   }, [transactions, selectedMonth, selectedYear]);
 
-
   const { totalIncome, totalExpense } = useMemo(() => {
-  return filteredTransactions.reduce(
-    (acc, curr) => {
-      const monto = Number(String(curr.amount).replace(/\./g, ''));
-      if (curr.type === 'income') acc.totalIncome += monto;
-      else acc.totalExpense += monto;
-      return acc;
-    },
-    { totalIncome: 0, totalExpense: 0 }
-  );
+    return filteredTransactions.reduce(
+      (acc, curr) => {
+        const monto = Number(String(curr.amount).replace(/\./g, ''));
+        if (curr.type === 'income') acc.totalIncome += monto;
+        else acc.totalExpense += monto;
+        return acc;
+      },
+      { totalIncome: 0, totalExpense: 0 }
+    );
   }, [filteredTransactions]);
 
   const netBalance = totalIncome - totalExpense;
@@ -133,9 +133,8 @@ const Reports = () => {
       else days[day - 1].expense += monto;
     });
     
-    // Protección contra el "Infinito"
     let maxAmount = Math.max(...days.map(d => Math.max(d.income, d.expense)), 1); 
-    if (!isFinite(maxAmount)) maxAmount = 1; // Evita que las gráficas colapsen
+    if (!isFinite(maxAmount)) maxAmount = 1;
 
     return days.map(d => ({ ...d, iH: (d.income / maxAmount) * 100, eH: (d.expense / maxAmount) * 100 }));
   }, [filteredTransactions, selectedMonth, selectedYear]);
@@ -171,7 +170,7 @@ const Reports = () => {
         </div>
       </div>
 
-      {/* TARJETAS RESUMEN (Truncadas para evitar desbordamiento) */}
+      {/* TARJETAS RESUMEN */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className={`p-5 rounded-3xl border ${theme.card} overflow-hidden`}>
           <span className={`text-[10px] font-bold uppercase tracking-wider ${theme.muted}`}>Ingresos</span>
@@ -191,26 +190,25 @@ const Reports = () => {
       <div className={`p-6 rounded-3xl border ${theme.card}`}>
         <h3 className={`text-sm font-bold mb-4 ${theme.text}`}>Flujo de Efectivo Diario</h3>
         
-        {/* Contenedor del gráfico con scroll horizontal */}
         <div className="h-48 w-full overflow-x-auto custom-scrollbar pb-2">
           <div className="flex items-end justify-between gap-1 h-full min-w-[600px] px-2">
             {dailyData.map((d, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center group relative">
-              {/* Tooltip */}
-              <div className={`absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center z-50 w-max p-2 rounded-xl shadow-2xl text-[10px] font-bold border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'}`}>
-                <span className="opacity-70 mb-1">Día {d.day}</span>
-                {d.income > 0 && <span className="text-emerald-500">▲ {formatCOP(d.income)}</span>}
-                {d.expense > 0 && <span className="text-rose-500">▼ {formatCOP(d.expense)}</span>}
-                {d.income === 0 && d.expense === 0 && <span className="text-gray-400">Sin movimientos</span>}
-              </div>
+              <div key={i} className="flex-1 flex flex-col items-center group relative">
+                {/* ✅ Tooltip posicionado arriba con translate para no depender de la altura de la barra */}
+                <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mt-[-8px] hidden group-hover:flex flex-col items-center z-50 w-max p-2 rounded-xl shadow-2xl text-[10px] font-bold border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-800'}`}>
+                  <span className={`opacity-70 mb-1 ${theme.text}`}>Día {d.day}</span>
+                  {d.income > 0 && <span className="text-emerald-500">▲ {formatCOP(d.income)}</span>}
+                  {d.expense > 0 && <span className="text-rose-500">▼ {formatCOP(d.expense)}</span>}
+                  {d.income === 0 && d.expense === 0 && <span className="text-gray-400">Sin movimientos</span>}
+                </div>
 
-              <div className="flex gap-[1px] items-end h-32 w-full justify-center">
-                <div className="w-1.5 md:w-2 bg-emerald-500 rounded-t-sm transition-all duration-300 hover:brightness-110" style={{ height: `${d.iH}%`, minHeight: d.income > 0 ? '4px' : '0' }}></div>
-                <div className="w-1.5 md:w-2 bg-rose-500 rounded-t-sm transition-all duration-300 hover:brightness-110" style={{ height: `${d.eH}%`, minHeight: d.expense > 0 ? '4px' : '0' }}></div>
+                <div className="flex gap-[1px] items-end h-32 w-full justify-center">
+                  <div className="w-1.5 md:w-2 bg-emerald-500 rounded-t-sm transition-all duration-300 hover:brightness-110" style={{ height: `${d.iH}%`, minHeight: d.income > 0 ? '4px' : '0' }}></div>
+                  <div className="w-1.5 md:w-2 bg-rose-500 rounded-t-sm transition-all duration-300 hover:brightness-110" style={{ height: `${d.eH}%`, minHeight: d.expense > 0 ? '4px' : '0' }}></div>
+                </div>
+                <span className={`text-[9px] mt-2 font-bold ${theme.muted}`}>{d.day}</span>
               </div>
-              <span className={`text-[9px] mt-2 font-bold ${theme.muted}`}>{d.day}</span>
-            </div>
-          ))}
+            ))}
           </div>
         </div>
 
@@ -225,13 +223,14 @@ const Reports = () => {
             <span className={`text-xs font-bold ${theme.muted}`}>Gastos</span>
           </div>
         </div>
-
       </div>
-      {/* ASISTENTE JADE CON PROP DE LÍMITE */}
+
+      {/* ASISTENTE JADE */}
       <AsisteChat onLimitReached={(info) => {
         setLimitInfo(info);
         setLimitReached(true);
       }} />
+
       {/* MODAL PREMIUM */}
       <PremiumModal isOpen={showPremiumModal} onClose={() => setShowPremiumModal(false)} limitInfo={{ ...limitInfo, isDarkMode: darkMode }} />
     </div>
@@ -239,6 +238,3 @@ const Reports = () => {
 };
 
 export default Reports;
-
-
-
