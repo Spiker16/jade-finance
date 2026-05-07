@@ -940,9 +940,10 @@ app.post('/api/transactions/voice', protectRoute, async (req, res) => {
   if (!text) return res.status(400).json({ error: 'No se recibió texto' });
 
   try {
-    // Obtener las categorías del usuario para que la IA sepa a cuál asignar el gasto
     const user = await User.findById(req.user.id);
-    const categoriasDisponibles = user.categories.map(c => c.name).join(', ');
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const categoriasDisponibles = user.categories?.map(c => c.name).join(', ') || 'Otros';
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
@@ -953,50 +954,41 @@ app.post('/api/transactions/voice', protectRoute, async (req, res) => {
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          { 
-            role: 'system', 
-            content: `Eres un extractor de datos financieros. 
-            Tu objetivo es convertir texto de voz en un JSON estructurado.
-            CATEGORÍAS DISPONIBLES: [${categoriasDisponibles}].
-            
-            REGLAS:
-            1. 'amount': Extrae solo el número (ej: "diez mil" -> 10000).
-            2. 'category': Debe ser estrictamente una de las CATEGORÍAS DISPONIBLES. Si ninguna encaja, usa "Otros".
-            3. 'description': Un resumen corto del gasto.
-            4. 'type': 'expense' para gastos, 'income' para ingresos.
-            
-            Responde ÚNICAMENTE el objeto JSON sin formato markdown.`
+          {
+            role: 'system',
+            content: `Extrae monto, categoría (de una lista dinámica que te pasaré), descripción y tipo (expense/income) y responde solo JSON. Categorías disponibles: ${categoriasDisponibles}.`
           },
           { role: 'user', content: `Texto: "${text}"` }
         ],
-        temperature: 0.1 // Temperatura baja para mayor precisión técnica
+        temperature: 0.1
       })
     });
 
     const data = await response.json();
-    
-    // Limpiar posibles etiquetas de markdown que a veces pone la IA
-    let rawContent = data.choices[0].message.content.replace(/```json|```/g, '').trim();
+    const rawContent = (data?.choices?.[0]?.message?.content || '').replace(/```json|```/g, '').trim();
     const result = JSON.parse(rawContent);
 
-    // Crear la transacción en la base de datos
+    const amount = Number(result.amount);
+    const category = result.category || 'Otros';
+    const description = result.description || text;
+    const type = ['expense', 'income'].includes(result.type) ? result.type : 'expense';
+
     const newTx = new Transaction({
       userId: req.user.id,
-      amount: result.amount,
-      category: result.category,
-      description: result.description,
-      type: result.type,
+      amount,
+      category,
+      description,
+      type,
       createdAt: new Date()
     });
 
     await newTx.save();
 
-    // Notificar por Socket.io (ya que tienes la lógica configurada)
     if (global.io) {
-      const montoFormateado = result.amount.toLocaleString('es-CO');
+      const montoFormateado = amount.toLocaleString('es-CO');
       const notif = new Notification({
         userId: req.user.id,
-        message: `🎙️ Registro por voz: $${montoFormateado} en ${result.category}`,
+        message: `🎙️ Registro por voz: $${montoFormateado} en ${category}`,
         type: 'goal_success'
       });
       await notif.save();
@@ -1004,7 +996,6 @@ app.post('/api/transactions/voice', protectRoute, async (req, res) => {
     }
 
     res.json({ success: true, transaction: newTx });
-
   } catch (error) {
     console.error('❌ Error en procesamiento de voz:', error);
     res.status(500).json({ error: 'No pude entender o procesar el comando de voz.' });

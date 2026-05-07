@@ -1,6 +1,6 @@
 // frontend/src/pages/Dashboard.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import PremiumModal from '../components/PremiumModal'; 
 import AsisteChat from '../components/AsisteChat';
 import API_URL from '../config.js';
@@ -360,6 +360,8 @@ const Dashboard = () => {
     return acc;
   }, {});
 
+  const navigate = useNavigate();
+
   const themeClasses = {
     card: darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100',
     textTitle: darkMode ? 'text-gray-100' : 'text-gray-800',
@@ -368,7 +370,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 mt-8 px-4 pb-8">
+    <div className="max-w-4xl mx-auto space-y-6 mt-8 px-4 pb-8 relative">
       {/* SECCIÓN SALDO */}
       <div className={`p-8 rounded-3xl border shadow-sm text-center overflow-hidden ${themeClasses.card}`}>
         <h2 className={`text-sm font-bold tracking-widest uppercase mb-2 ${themeClasses.textMuted}`}>Saldo Disponible</h2>
@@ -518,6 +520,14 @@ const Dashboard = () => {
         onClose={() => setLimitReached(false)} 
         limitInfo={limitInfo} 
       />
+
+      <button
+        onClick={() => navigate('/voz')}
+        className="fixed bottom-6 right-6 z-[999] w-16 h-16 rounded-full bg-emerald-500 shadow-2xl shadow-emerald-500/40 text-white text-3xl flex items-center justify-center transition-transform hover:scale-105"
+        aria-label="Ir a voz"
+      >
+        🎤
+      </button>
     </div>
   );
 };

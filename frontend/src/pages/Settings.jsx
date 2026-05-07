@@ -209,27 +209,30 @@ const Settings = () => {
       setShowDeleteModal(false);
     }
   };
-    const VoiceSettings = () => {
-    const urlDeVoz = "https://jadefinance.online/VoicePage"; // Cambia por tu dominio real
 
-    const configurarGoogle = () => {
-      // 1. Copiamos la URL al portapapeles para facilitarle la vida al usuario
-      navigator.clipboard.writeText(urlDeVoz);
-      alert("URL de voz copiada. Ahora pégala en la acción de la Rutina de Google.");
-      
-      // 2. Abrimos la configuración de Rutinas de Google
-      window.location.href = "https://assistant.google.com/settings/routines";
+  const VoiceSettings = () => {
+    const voiceUrl = 'https://jadefinance.online/voz';
+
+    const configurarGoogle = async () => {
+      try {
+        await navigator.clipboard.writeText(voiceUrl);
+      } catch (error) {
+        console.error('No se pudo copiar al portapapeles:', error);
+      }
+
+      window.open('https://assistant.google.com/settings/routines', '_blank', 'noopener,noreferrer');
     };
 
     return (
-      <div className="p-4 bg-slate-800 rounded-2xl mt-4">
-        <h3 className="font-bold">🎙️ Comandos de Voz</h3>
-        <p className="text-sm text-slate-400 mb-3">Usa "Ok Google" para registrar gastos.</p>
-        <button 
+      <div className="p-6 rounded-[2.5rem] border border-slate-800 bg-slate-900/80 shadow-xl mt-4">
+        <h3 className="text-lg font-black text-white mb-2">Comando de Voz</h3>
+        <p className="text-sm text-slate-400 mb-4">Ok Google puede usar esta URL para abrir Jade en voz. Copia el link y configura la rutina.</p>
+        <button
+          type="button"
           onClick={configurarGoogle}
-          className="w-full py-2 bg-emerald-500 text-white rounded-lg font-medium"
+          className="w-full py-4 bg-emerald-500 text-white rounded-3xl font-black hover:bg-emerald-600 transition-all"
         >
-          Configurar en Google Assistant
+          Configurar comando de voz
         </button>
       </div>
     );
@@ -323,6 +326,8 @@ const Settings = () => {
             </div>
           </div>
           
+          <VoiceSettings />
+
           <button 
             onClick={() => setShowDeleteModal(true)} 
             className="w-full py-4 bg-rose-500/10 text-rose-500 rounded-3xl font-black text-[10px] hover:bg-rose-500 hover:text-white transition-all">
