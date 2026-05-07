@@ -209,6 +209,31 @@ const Settings = () => {
       setShowDeleteModal(false);
     }
   };
+    const VoiceSettings = () => {
+    const urlDeVoz = "https://jadefinance.online/VoicePage"; // Cambia por tu dominio real
+
+    const configurarGoogle = () => {
+      // 1. Copiamos la URL al portapapeles para facilitarle la vida al usuario
+      navigator.clipboard.writeText(urlDeVoz);
+      alert("URL de voz copiada. Ahora pégala en la acción de la Rutina de Google.");
+      
+      // 2. Abrimos la configuración de Rutinas de Google
+      window.location.href = "https://assistant.google.com/settings/routines";
+    };
+
+    return (
+      <div className="p-4 bg-slate-800 rounded-2xl mt-4">
+        <h3 className="font-bold">🎙️ Comandos de Voz</h3>
+        <p className="text-sm text-slate-400 mb-3">Usa "Ok Google" para registrar gastos.</p>
+        <button 
+          onClick={configurarGoogle}
+          className="w-full py-2 bg-emerald-500 text-white rounded-lg font-medium"
+        >
+          Configurar en Google Assistant
+        </button>
+      </div>
+    );
+  };
 
   const theme = {
     card: darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200 shadow-xl',
