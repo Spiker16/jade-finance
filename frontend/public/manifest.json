@@ -1,0 +1,8 @@
+"shortcuts": [
+  {
+    "name": "Registrar por voz",
+    "short_name": "Voz",
+    "url": "/voz",
+    "icons": [{ "src": "icon-voice-192.png", "sizes": "192x192" }]
+  }
+]

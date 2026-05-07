@@ -15,6 +15,7 @@ import Settings from './pages/Settings';
 import Upgrade from './pages/Upgrade';
 import PaymentResult from './pages/PaymentResult';
 import LandingPage from './pages/LandingPage';
+import VoicePage from './pages/VoicePage';
 
 // ==========================================
 // 1. COMPONENTE GUARDIA (ProtectedRoute)
@@ -73,6 +74,7 @@ function App() {
           <Route path="/budgets" element={<Budgets />} />
           <Route path="/accounts" element={<Accounts />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/voz" element={<VoicePage />} />
         </Route>
 
         {/* Ruta por defecto: Si no existe la ruta o no está logueado, al login */}
